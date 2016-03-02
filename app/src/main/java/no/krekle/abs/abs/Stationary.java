@@ -1,16 +1,42 @@
 package no.krekle.abs.abs;
 
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
-public class Stationary extends Activity {
+import no.krekle.abs.abs.client.ABSCallback;
+import no.krekle.abs.abs.client.AbsApi;
+import no.krekle.abs.abs.driver.DriveInstance;
+import no.krekle.abs.abs.driver.DriveLog;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
+public class Stationary extends Activity implements ABSCallback{
+
+    private TextView test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stationary);
+
+        test = (TextView) findViewById(R.id.txtTest);
+
+        // Test
+        DriveLog log = new DriveLog(3);
+        log.addLog(new DriveInstance(60));
+        log.addLog(new DriveInstance(30));
+        log.addLog(new DriveInstance(40));
+        log.addLog(new DriveInstance(60));
+        log.addLog(new DriveInstance(70));
+
+        AbsApi api = new AbsApi();
+        api.insert(log, this);
+
+
     }
 
     @Override
@@ -19,6 +45,8 @@ public class Stationary extends Activity {
         getMenuInflater().inflate(R.menu.menu_stationary, menu);
         return true;
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -33,5 +61,23 @@ public class Stationary extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void success(Response response) {
+        Log.v("SUCCESS", response.getBody().toString());
+        Log.v("SUCCESS", response.getHeaders().toString());
+        Log.v("SUCCESS", response.getStatus() + "");
+
+    }
+
+    @Override
+    public void failure(RetrofitError response) {
+        Log.v("ERROR", response.toString());
+    }
+
+    @Override
+    public void inProgress() {
+        Log.v("IN PROGRESS", "VERY MUCH SO");
     }
 }
