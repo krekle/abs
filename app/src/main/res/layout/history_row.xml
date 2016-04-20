@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/car"
+        android:id="@+id/history_row_image"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/history_row_text"
+        android:text="Placeholder for list row"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="10dp"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:layout_toRightOf="@id/history_row_image"/>
+
+</RelativeLayout>

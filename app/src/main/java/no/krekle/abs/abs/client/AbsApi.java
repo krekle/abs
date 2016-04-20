@@ -3,14 +3,13 @@ package no.krekle.abs.abs.client;
 import android.util.Log;
 
 import no.krekle.abs.abs.driver.DriveLog;
+import no.krekle.abs.abs.history.History;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.http.Body;
-import retrofit.http.GET;
 import retrofit.http.POST;
-import retrofit.mime.TypedByteArray;
 
 /**
  * Created by krekle on 02/03/16.
@@ -20,8 +19,6 @@ public class AbsApi {
     private static String BASE_URL = "http://folk.ntnu.no/audunlib/bil";
 
     public interface Abs {
-        @GET("/insert.php?user=1,2&trip=4,5&timestamp=333333333,444444444&speed=10,11")
-        void test(Callback<Response> callback);
 
         @POST("/insert")
         void insert(
@@ -34,30 +31,6 @@ public class AbsApi {
     private RestAdapter restAdapter;
     private Abs apiService;
 
-    public void test(final ABSCallback callback) {
-
-        // Service started callback
-        callback.inProgress();
-
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(BASE_URL)
-                .build();
-        apiService = restAdapter.create(Abs.class);
-        apiService.test(new Callback<Response>() {
-
-            @Override
-            public void success(Response response, Response response2) {
-                Log.v("CALLBACK", "Success");
-                callback.success(response);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.v("CALLBACK", "Failure");
-                callback.failure(error);
-            }
-        });
-    }
 
     public void insert(DriveLog log, final ABSCallback callback) {
 
@@ -72,17 +45,18 @@ public class AbsApi {
 
             @Override
             public void success(Response response, Response response2) {
-                Log.v("DATA", "TEST");
-                Log.v("DATA", new String(((TypedByteArray) response.getBody()).getBytes()));
-
+                //Log.v("DATA", new String(((TypedByteArray) response.getBody()).getBytes()));
 
                 callback.success(response);
+
+                History.getInstance().addHistory("Data transferred success");
             }
 
             @Override
             public void failure(RetrofitError error) {
                 Log.v("CALLBACK", "Failure");
                 callback.failure(error);
+                History.getInstance().addHistory("Data transferred failure");
             }
         });
 

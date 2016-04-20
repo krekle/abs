@@ -1,14 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:weightSum="10"
     tools:context="no.krekle.abs.abs.Stationary">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:id="@+id/txtTest" />
+    <!-- Main View -->
+    <RelativeLayout
+        android:layout_weight="10.95"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-</RelativeLayout>
+        <com.mikhaellopez.circularprogressbar.CircularProgressBar
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            app:cpb_background_progressbar_color="#FFCDD2"
+            app:cpb_background_progressbar_width="5dp"
+            app:cpb_progressbar_color="#F44336"
+            app:cpb_progressbar_width="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="60dp"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/stationaryGauge"/>
+
+        <RelativeLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_alignBottom="@+id/stationaryGauge"
+            android:layout_alignTop="@+id/stationaryGauge">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="65 Km/h"
+                android:id="@+id/txtSpeed"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerInParent="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/txtSpeed"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="1900"
+                android:id="@+id/txtRPM"
+                android:layout_centerHorizontal="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Avg 37 Km/h"
+                android:id="@+id/txtAvg"
+                android:layout_below="@+id/txtRPM"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <!-- Controls -->
+    <RelativeLayout
+        android:background="#FFCDD2"
+        android:layout_weight="10.87"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <ImageButton
+            android:background="#FFCDD2"
+            android:src="@drawable/car"
+            android:layout_height="128dp"
+            android:layout_width="128dp"
+            android:layout_alignParentLeft="true"
+            android:text="New Button"
+            android:id="@+id/btnStart" />
+
+        <ImageButton
+            android:background="#FFCDD2"
+            android:src="@drawable/history"
+            android:layout_height="128dp"
+            android:layout_width="128dp"
+            android:layout_centerHorizontal="true"
+            android:text="New Button"
+            android:id="@+id/btnHistory"/>
+
+        <ImageButton
+            android:background="#FFCDD2"
+            android:src="@drawable/settings"
+            android:layout_height="128dp"
+            android:layout_width="128dp"
+            android:layout_alignParentRight="true"
+            android:text="New Button"
+            android:id="@+id/btnSettings"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

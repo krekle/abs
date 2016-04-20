@@ -3,19 +3,17 @@ package no.krekle.abs.abs;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Set;
+import no.krekle.abs.abs.bluetooth.Connections;
+import no.krekle.abs.abs.client.AbsApi;
+import no.krekle.abs.abs.driver.DriveLog;
+import no.krekle.abs.abs.settings.Settings;
 
 
 public class Splash extends Activity {
@@ -26,16 +24,13 @@ public class Splash extends Activity {
     private BluetoothDevice device;
     private final int REQUEST_ENABLE_BT = 1337;
     private final String obd_address = "00:06:66:77:72:BF";
-    // Bluetooth Mac
-    //00:06:66:77:72:BF
-    //0006667772BF
+    DriveLog log = new DriveLog(38);
+    AbsApi api = new AbsApi();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Hide actionbar
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_splash);
 
         // Ref gui elements
@@ -45,90 +40,62 @@ public class Splash extends Activity {
         // Animate Progressbar
         this.progress.setIndeterminate(true);
 
-        // Bluetooth
-        bluetoothConnectionProcess(0);
+        // Check if bluetooth is enabled
+        if (Connections.blueToothEnabled()) {
+            getAdapter();
+        } else {
+            enableBluetooth();
+        }
 
+        bluetoothConnectionProcess();
+    }
+
+    // Turn bluetooth on for the device
+    private void enableBluetooth() {
+        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+    }
+
+    // Get the bluetooth adapter for the device
+    private void getAdapter() {
+        adapter = BluetoothAdapter.getDefaultAdapter();
     }
 
     // Wrapper for whole bluetooth connection
-    private void bluetoothConnectionProcess(int progress) {
+    private void bluetoothConnectionProcess() {
 
-        if (progress == 0) {
-            // Feedback text
-            setFeedbackText("Activating bluetooth");
+        // Discover device
+        BluetoothDevice device = null;
 
-            // Start bluetooth
-            this.adapter = enableBluetooth();
-
-            progress++;
+        // Look for device until found
+        while (device == null) {
+            setFeedbackText("Searching for device ...");
+            device = Connections.discoverDevices(adapter, obd_address);
         }
 
-        else if (progress == 1) {
-            // Check device compatability
-            if (this.adapter == null) {
-                setFeedbackText("");
-                Toast.makeText(getApplicationContext(), "Bluetooth not supported by this device!", Toast.LENGTH_LONG).show();
-                return;
-            }
-            progress++;
-        }
+        // Notify user
+        setFeedbackText("Device found, name: " + device.getName());
 
-        else if(progress >= 2) {
-            //Feedback text
-            setFeedbackText("Searching for device");
-
-            // Search for device
-            device = findBondedDevices();
-
-            if (device == null) {
-                device = findBluetoothDevices();
-            }
-            progress++;
-        }
-
-        else if(progress >= 3) {
-            //Feedback text
-            setFeedbackText("Connecting to device");
-
-            progress++;
-        }
-
-
-        else if(progress >= 4) {
-            //Feedback text
-            setFeedbackText("Connect to device");
-
-        }
+        // Store Device in settings
+        Settings.getInstance().setDevice(device);
 
         // Change activity after wait
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             public void run() {
+                setFeedbackText("Connecting ...");
                 changeActivity();
             }
         }, 2000);
-
 
     }
 
     // Changes screen to Stationary/Home
     private void changeActivity() {
+        this.progress.setIndeterminate(false);
         this.startActivity(new Intent(getApplicationContext(), Stationary.class));
         this.overridePendingTransition(0, 0);
-    }
-
-    private BluetoothAdapter enableBluetooth() {
-        adapter = BluetoothAdapter.getDefaultAdapter();
-        if (adapter != null) {
-            if (!adapter.isEnabled()) {
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            }
-            // Bluetooth is enabled
-            return adapter;
-        }
-        // Bluetooth adapter not avaliable on phone
-        return null;
+        this.finish();
     }
 
     // Callback
@@ -136,9 +103,9 @@ public class Splash extends Activity {
         // Enable bluetooth
         if (requestCode == REQUEST_ENABLE_BT) {
             if (resultCode == RESULT_OK) {
+                getAdapter();
 
-                // Connect to device
-                bluetoothConnectionProcess(1);
+                bluetoothConnectionProcess();
             } else {
 
                 // Bluetooth enabling failed!
@@ -148,72 +115,9 @@ public class Splash extends Activity {
 
     }
 
-    private void connectToDevice(BluetoothDevice device) {
-
-        if (device != null) {
-            // Connect to the device
-            device.createBond();
-            device.setPairingConfirmation(true);
-        } else {
-            // Paired
-            device = findBluetoothDevices();
-
-        }
-
-
-    }
-
-    private BluetoothDevice findBondedDevices() {
-        Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
-        // If there are paired devices
-        if (pairedDevices.size() > 0) {
-
-            // Loop through paired devices
-            for (BluetoothDevice device : pairedDevices) {
-                if (device.getAddress().equals(obd_address)) {
-                    Log.v("FIND BONDED DEVICE", device.toString());
-                    return device;
-                }
-            }
-            Log.v("FIND BONDED DEVICE", "No bonded devices found");
-            return null;
-        } else {
-            Log.v("FIND BONDED DEVICE", "No bonded devices found");
-            return null;
-        }
-    }
-
-
-    private BluetoothDevice findBluetoothDevices() {
-        // Search for device
-        adapter.startDiscovery();
-
-        // Create a BroadcastReceiver for ACTION_FOUND
-        Log.v("FIND DEVICE", "Finding device");
-        final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                // When discovery finds a device
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                    // Get the BluetoothDevice object from the Intent
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    // Add the name and address to an array adapter to show in a ListView
-                    if (device.getAddress().equals(obd_address)) {
-                        // connect to device
-                    }
-                }
-            }
-        };
-        // Register the BroadcastReceiver
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
-
-        adapter.cancelDiscovery();
-        return null;
-    }
-
     private void setFeedbackText(String feedback) {
         this.feedback.setText(feedback);
     }
+
 
 }

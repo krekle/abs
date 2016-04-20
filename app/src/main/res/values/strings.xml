@@ -3,7 +3,7 @@
     <string name="action_settings">Settings</string>
 
     <string name="title_activity_splash">Splash</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="preference_file_key">kebabpolse</string>
+    <string name="bluetooth_uuid">6975380c-d8e7-45f2-a9d5-150cb18bfbaf</string>
+    <string name="title_activity_history">HistoryActivity</string>
 </resources>

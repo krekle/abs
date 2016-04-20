@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="no.krekle.abs.abs">
 
-
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,20 +12,34 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".Splash"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_splash"
-            android:theme="@style/FullscreenTheme">
+            android:label="@string/title_activity_splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".Stationary"
-            android:label="@string/app_name"></activity>
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".history.HistoryActivity"
+            android:parentActivityName="no.krekle.abs.abs.Stationary" >
+            android:label="@string/title_activity_history">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="no.krekle.abs.abs.Stationary"/>
+        </activity>
+
+        <service
+            android:name=".ABSBluetoothService"
+            android:exported="false" />
     </application>
 
 </manifest>
