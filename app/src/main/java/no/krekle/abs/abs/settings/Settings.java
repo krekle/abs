@@ -57,7 +57,6 @@ public class Settings {
     private BluetoothDevice device;
     private BluetoothSocket socket;
 
-
     public void setDevice(BluetoothDevice device) {
         this.device = device;
     }

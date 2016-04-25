@@ -20,7 +20,6 @@ public class DriveInstance {
         speed = currentSpeed;
     }
 
-
     public DriveInstance() {
         timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }

@@ -182,7 +182,7 @@ public class Stationary extends Activity implements ABSCallback, ABSBluetoothCal
 
     @Override
     public void bluetoothConnected() {
-        Toast.makeText(getApplicationContext(), "Device Connection Failed", Toast.LENGTH_SHORT);
+        //Toast.makeText(getApplicationContext(), "Device Connection Failed", Toast.LENGTH_SHORT);
         Log.v("BLUETOOTH CONNECTION", "SUCCESS");
     }
 
@@ -212,27 +212,25 @@ public class Stationary extends Activity implements ABSCallback, ABSBluetoothCal
 
             @Override
             public void run() {
-                if(!Settings.getInstance().isSpeedOnly()) {
+                if (!Settings.getInstance().isSpeedOnly()) {
+                    // Speed in
+                    gauge.setProgressWithAnimation((float) driveInstance.getKmSpeed(), 10);
+                    // Throttle in %
+                    gauge.setProgressBarWidth(100 + (float) (driveInstance.getThrottle() * 0.5));
+                    // Brake in %
+                    gauge.setBackgroundProgressBarWidth(100 + (float) (driveInstance.getBrake() * 0.5));
 
-                // Speed in
-                gauge.setProgressWithAnimation((float) driveInstance.getKmSpeed(), 10);
-                // Throttle in %
-                gauge.setProgressBarWidth(100 + (float)(driveInstance.getThrottle()*0.5));
-                // Brake in %
-                gauge.setBackgroundProgressBarWidth(100 + (float)(driveInstance.getBrake()*0.5));
-
-
-                // Update TextViews
-                txtSpeed.setText(round((float)driveInstance.getKmSpeed(), 2) + " Km/h");
-                txtRPM.setText(driveInstance.getRpm()+ " 1000/min");
-                txtAvg.setText(driveInstance.getBrake() + "");
+                    // Update TextViews
+                    txtSpeed.setText(round((float) driveInstance.getKmSpeed(), 2) + " Km/h");
+                    txtRPM.setText(driveInstance.getRpm() + " 1000/min");
+                    txtAvg.setText(driveInstance.getBrake() + "");
 
                 } else {
                     // Speed in
                     gauge.setProgressWithAnimation((float) driveInstance.getKmSpeed(), 10);
 
                     // Update TextViews
-                    txtSpeed.setText(round((float)driveInstance.getKmSpeed(), 2) + " Km/h");
+                    txtSpeed.setText(round((float) driveInstance.getKmSpeed(), 2) + " Km/h");
                     txtRPM.setText("");
                     txtAvg.setText("");
                 }
@@ -255,6 +253,6 @@ public class Stationary extends Activity implements ABSCallback, ABSBluetoothCal
     ////////////////
 
     private float round(float d, int decimalPlace) {
-        return BigDecimal.valueOf(d).setScale(decimalPlace,BigDecimal.ROUND_HALF_UP).floatValue();
+        return BigDecimal.valueOf(d).setScale(decimalPlace, BigDecimal.ROUND_HALF_UP).floatValue();
     }
 }

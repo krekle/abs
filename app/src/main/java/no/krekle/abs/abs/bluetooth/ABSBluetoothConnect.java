@@ -3,26 +3,19 @@ package no.krekle.abs.abs.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
 import java.io.IOException;
-import java.util.Random;
-
-import no.krekle.abs.abs.client.ABSCallback;
-import no.krekle.abs.abs.client.AbsApi;
-import no.krekle.abs.abs.driver.DriveInstance;
-import no.krekle.abs.abs.driver.DriveLog;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 /**
  * Created by krekle on 02/03/16.
  */
-public class ABSBluetoothConnect extends Thread implements ABSCallback {
+public class ABSBluetoothConnect extends Thread {
 
     private final BluetoothSocket mmSocket;
     private final BluetoothDevice mmDevice;
     private ABSBluetoothCallback caller;
+    private boolean connected = false;
+
 
     public ABSBluetoothConnect(BluetoothDevice device, ABSBluetoothCallback caller) {
 
@@ -52,22 +45,26 @@ public class ABSBluetoothConnect extends Thread implements ABSCallback {
     }
 
     public void run() {
+
         // Cancel discovery because it will slow down the connection
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothAdapter.cancelDiscovery();
 
-        connect();
+        // Try to connect until successful
+        while(!connected) {
+            connect();
+        }
     }
 
     private void connect() {
-        System.out.println("@Run");
-
+        System.out.println("Connecting");
 
         try {
             // Connect the device through the socket. This will block
             // until it succeeds or throws an exception
 
             mmSocket.connect();
+            this.connected = true;
 
             // Notify the progress to the activity
             caller.bluetoothConnected();
@@ -101,38 +98,5 @@ public class ABSBluetoothConnect extends Thread implements ABSCallback {
             mmSocket.close();
         } catch (IOException e) {
         }
-    }
-
-    // ///////////////////////
-    //  HTTP COMMUNICATION  //
-    //////////////////////////
-
-    private void sendMock() {
-        Random random = new Random();
-
-        DriveLog log = new DriveLog(3);
-        for (int i = 0; i < 5; i++) {
-            Double speed = random.nextDouble() * 80.0;
-            log.addLog(new DriveInstance(speed.intValue()));
-        }
-        AbsApi api = new AbsApi();
-        api.insert(log, this);
-
-        Log.v("LOG SENDT", "ok");
-    }
-
-    @Override
-    public void success(Response response) {
-
-    }
-
-    @Override
-    public void failure(RetrofitError response) {
-
-    }
-
-    @Override
-    public void inProgress() {
-
     }
 }
